@@ -1,42 +1,43 @@
-import pandas
+from pandas import DataFrame, read_csv
 
 
 def main():
-    submission_input, resubmission_input, select, submission_output, resubmission_output = get_files()
+    experiment = "D"
+    submission_input, resubmission_input, select, submission_output, resubmission_output = get_files(experiment)
 
-    data = get_maps(resubmission_input, resubmission_output, select, submission_input, submission_output)
+    data = get_maps(resubmission_input, resubmission_output, select, submission_input, submission_output, experiment)
 
     info = {"sis_id": [], "selected_ai_grading": [], "submission": [], "submission_ai_score": [], "submission_ai_comment": [], "resubmission": [], "resubmission_ai_score": [],
             "resubmission_ai_comment": [], "question1": [], "question2": [], "question3": [], "question4": [], "question5": [], "question6": [], "question7": []}
 
     process_data(info, data)
 
-    save_data(info, data)
+    save_data(info, data, experiment)
 
 
-def get_files():
-    submission_input = pandas.read_csv("Data/Recursion_Practice_B1_Quiz_Student_Analysis_Report_clean.csv", encoding="ISO-8859-1")
-    resubmission_input = pandas.read_csv("Data/Recursion_Practice_B2_revisited_Survey_Student_Analysis_Report_clean.csv", encoding="ISO-8859-1")
-    select = pandas.read_csv("Data/S24_Select_clean.csv", encoding="ISO-8859-1")
-    submission_output = pandas.read_csv("Data/S24_AI_Feedback_B1_experiment_0.csv", encoding="ISO-8859-1")
-    resubmission_output = pandas.read_csv("Data/S24_AI_Feedback_B2_experiment_0.csv", encoding="ISO-8859-1")
+def get_files(experiment):
+    submission_input = read_csv(f"Data/{experiment}/Recursion_Practice_{experiment}1_Quiz_Student_Analysis_Report_clean.csv", encoding="ISO-8859-1")
+    resubmission_input = read_csv(f"Data/{experiment}/Recursion_Practice_{experiment}2_Revisited_Survey_Student_Analysis_Report_clean.csv", encoding="ISO-8859-1")
+    select = read_csv("Data/S24_Select_clean.csv", encoding="ISO-8859-1")
+    submission_output = read_csv(f"Data/{experiment}/S24_AI_Feedback_{experiment}1_experiment_0.csv", encoding="ISO-8859-1")
+    resubmission_output = read_csv(f"Data/{experiment}/S24_AI_Feedback_{experiment}2_experiment_0.csv", encoding="ISO-8859-1")
     return submission_input, resubmission_input, select, submission_output, resubmission_output
 
 
-def get_maps(resubmission_input, resubmission_output, select, submission_input, submission_output):
+def get_maps(resubmission_input, resubmission_output, select, submission_input, submission_output, experiment):
     output_resubmission_ai_prompt = resubmission_output["ai_starting_prompt"].to_list()
-    output_resubmission_problem = resubmission_output["problemB2"].to_list()
+    output_resubmission_problem = resubmission_output[f"problem{experiment}2"].to_list()
     output_resubmission_example_solutions = resubmission_output["solution"].to_list()
     output_resubmission_example_student_codes = resubmission_output["studentCode"].to_list()
     output_resubmission_example_comments = resubmission_output["comment"].to_list()
 
-    question1_answers = resubmission_input["20157924: How useful was the feedback"].to_list()
-    question2_answers = resubmission_input["20157925: What aspects of the feedback are useful? "].to_list()
-    question3_answers = resubmission_input["20157926: What could make the feedback more useful?"].to_list()
-    question4_answers = resubmission_input["20157927: How long did it take you to understand the feedback and rewrite the solution? "].to_list()
-    question5_answers = resubmission_input["20157928: I understand recursion,"].to_list()
-    question6_answers = resubmission_input["20157929: I can follow the execution of a recursive function."].to_list()
-    question7_answers = resubmission_input["20157930: I can write a recursive function"].to_list()
+    question1_answers = resubmission_input["How useful was the feedback"].to_list()
+    question2_answers = resubmission_input["What aspects of the feedback are useful? "].to_list()
+    question3_answers = resubmission_input["What could make the feedback more useful?"].to_list()
+    question4_answers = resubmission_input["How long did it take you to understand the feedback and rewrite the solution? "].to_list()
+    question5_answers = resubmission_input["I understand recursion,"].to_list()
+    question6_answers = resubmission_input["I can follow the execution of a recursive function."].to_list()
+    question7_answers = resubmission_input["I can write a recursive function"].to_list()
 
     submission_data = get_submission_maps(submission_input, submission_output)
 
@@ -113,7 +114,10 @@ def get_map(list1, list2):
 def get_ids(prompts):
     ids = []
     for prompt in prompts:
-        ids.append(hash(prompt.replace("Â", "").replace(" ", "").strip()))
+        try:
+            ids.append(hash(prompt.replace("Â", "").replace(" ", "").strip()))
+        except AttributeError:
+            print(f"weird prompt: {prompt}")
     return ids
 
 
@@ -191,9 +195,9 @@ def get_max_list_length(info):
     return max(len(lst) for lst in info.values())
 
 
-def save_data(info, data):
+def save_data(info, data, experiment):
     max_list_length = get_max_list_length(info)
-    b1_b2_scoring = pandas.DataFrame()
+    b1_b2_scoring = DataFrame()
     b1_b2_scoring["AI Starting Prompt"] = get_column(data["output_resubmission_ai_prompt"], max_list_length)
     b1_b2_scoring["Problem"] = get_column(data["output_resubmission_problem"], max_list_length)
     b1_b2_scoring["Solutions"] = get_column(data["output_resubmission_example_solutions"], max_list_length)
@@ -229,7 +233,7 @@ def save_data(info, data):
     b1_b2_scoring["I understand recursion,"] = get_column(info["question5"], max_list_length)
     b1_b2_scoring["I can follow the execution of a recursive function."] = get_column(info["question6"], max_list_length)
     b1_b2_scoring["I can write a recursive function"] = get_column(info["question7"], max_list_length)
-    b1_b2_scoring.to_csv(f"B1_B2_scoring.csv")
+    b1_b2_scoring.to_csv(f"{experiment}1_{experiment}2_scoring.csv")
 
 
 if __name__ == "__main__":
