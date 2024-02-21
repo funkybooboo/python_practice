@@ -2,37 +2,38 @@ from pandas import DataFrame, read_csv
 
 
 def main():
-    experiment = "D"
-    submission_input, resubmission_input, select, submission_output, resubmission_output, submission_vicki, resubmission_vicki = get_files(
-        experiment)
+    experiments = ["B", "C", "D"]
+    for experiment in experiments:
+        submission_input, resubmission_input, select, submission_output, resubmission_output, submission_vicki, resubmission_vicki = get_files(
+            experiment)
 
-    data = get_maps(resubmission_input, resubmission_output, select, submission_input, submission_output, experiment,
-                    submission_vicki, resubmission_vicki)
+        data = get_maps(resubmission_input, resubmission_output, select, submission_input, submission_output, experiment,
+                        submission_vicki, resubmission_vicki)
 
-    info = {"sis_id": [], "selected_ai_grading": [], "submission": [], "submission_ai_score": [],
-            "submission_ai_comment": [], "resubmission": [], "resubmission_ai_score": [],
-            "resubmission_ai_comment": [], "question1": [], "question2": [], "question3": [], "question4": [],
-            "question5": [], "question6": [], "question7": [], "submission_vicki_comment": [], "submission_vicki_score": [], "resubmission_vicki_comment": [], "resubmission_vicki_score": []}
+        info = {"sis_id": [], "selected_ai_grading": [], "submission": [], "submission_ai_score": [],
+                "submission_ai_comment": [], "resubmission": [], "resubmission_ai_score": [],
+                "resubmission_ai_comment": [], "question1": [], "question2": [], "question3": [], "question4": [],
+                "question5": [], "question6": [], "question7": [], "submission_vicki_comment": [], "submission_vicki_score": [], "resubmission_vicki_comment": [], "resubmission_vicki_score": []}
 
-    process_data(info, data)
+        process_data(info, data)
 
-    save_data(info, data, experiment)
+        save_data(info, data, experiment)
 
 
 def get_files(experiment):
     submission_input = read_csv(
-        f"Data/{experiment}/Recursion_Practice_{experiment}1_Quiz_Student_Analysis_Report_clean.csv",
+        f"../Data/{experiment}/Recursion_Practice_{experiment}1_Quiz_Student_Analysis_Report_clean.csv",
         encoding="ISO-8859-1")
     resubmission_input = read_csv(
-        f"Data/{experiment}/Recursion_Practice_{experiment}2_Revisited_Survey_Student_Analysis_Report_clean.csv",
+        f"../Data/{experiment}/Recursion_Practice_{experiment}2_Revisited_Survey_Student_Analysis_Report_clean.csv",
         encoding="ISO-8859-1")
-    select = read_csv("Data/S24_Select_clean.csv", encoding="ISO-8859-1")
-    submission_output = read_csv(f"Data/{experiment}/S24_AI_Feedback_{experiment}1_experiment_0.csv",
+    select = read_csv("../Data/S24_Select_clean.csv", encoding="ISO-8859-1")
+    submission_output = read_csv(f"../Data/{experiment}/S24_AI_Feedback_{experiment}1_experiment_0.csv",
                                  encoding="ISO-8859-1")
-    resubmission_output = read_csv(f"Data/{experiment}/S24_AI_Feedback_{experiment}2_experiment_0.csv",
+    resubmission_output = read_csv(f"../Data/{experiment}/S24_AI_Feedback_{experiment}2_experiment_0.csv",
                                    encoding="ISO-8859-1")
-    submission_vicki = read_csv(f"Data/{experiment}/Vicki_Comments_{experiment}1.csv", encoding="ISO-8859-1")
-    resubmission_vicki = read_csv(f"Data/{experiment}/Vicki_Comments_{experiment}2.csv", encoding="ISO-8859-1")
+    submission_vicki = read_csv(f"../Data/{experiment}/Vicki_Comments_{experiment}1.csv", encoding="ISO-8859-1")
+    resubmission_vicki = read_csv(f"../Data/{experiment}/Vicki_Comments_{experiment}2.csv", encoding="ISO-8859-1")
     return submission_input, resubmission_input, select, submission_output, resubmission_output, submission_vicki, resubmission_vicki
 
 
@@ -61,8 +62,8 @@ def get_maps(resubmission_input, resubmission_output, select, submission_input, 
     sis_id_to_submission_vicki_score = get_map(submission_vicki_sis_ids, submission_vicki_scores)
 
     resubmission_vicki_sis_ids = resubmission_vicki["sisUserId"].to_list()
-    resubmission_vicki_comments = resubmission_vicki["submissionComment"].to_list()
-    resubmission_vicki_scores = resubmission_vicki["submissionScore"].to_list()
+    resubmission_vicki_comments = resubmission_vicki["resubmissionComment"].to_list()
+    resubmission_vicki_scores = resubmission_vicki["resubmissionScore"].to_list()
 
     sis_id_to_resubmission_vicki_comment = get_map(resubmission_vicki_sis_ids, resubmission_vicki_comments)
     sis_id_to_resubmission_vicki_score = get_map(resubmission_vicki_sis_ids, resubmission_vicki_scores)
@@ -283,13 +284,12 @@ def save_data(info, data, experiment):
     b1_b2_scoring["How useful was the feedback"] = get_column(info["question1"], max_list_length)
     b1_b2_scoring["What aspects of the feedback are useful?"] = get_column(info["question2"], max_list_length)
     b1_b2_scoring["What could make the feedback more useful?"] = get_column(info["question3"], max_list_length)
-    b1_b2_scoring["How long did it take you to understand the feedback and rewrite the solution?"] = get_column(
-        info["question4"], max_list_length)
+    b1_b2_scoring["How long did it take you to understand the feedback and rewrite the solution?"] = get_column(info["question4"], max_list_length)
     b1_b2_scoring["I understand recursion,"] = get_column(info["question5"], max_list_length)
     b1_b2_scoring["I can follow the execution of a recursive function."] = get_column(info["question6"],
                                                                                       max_list_length)
     b1_b2_scoring["I can write a recursive function"] = get_column(info["question7"], max_list_length)
-    b1_b2_scoring.to_csv(f"{experiment}1_{experiment}2_scoring.csv")
+    b1_b2_scoring.to_csv(f"../{experiment}1_{experiment}2_scoring.csv")
 
 
 if __name__ == "__main__":

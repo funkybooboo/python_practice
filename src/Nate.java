@@ -1,5 +1,3 @@
-// use https://github.com/kstateome/canvas-api
-
 package edu.ksu.canvas;
 
 import edu.ksu.canvas.interfaces.QuizReader;
@@ -22,46 +20,56 @@ public class Nate {
         String token = "";
         String courseId = "";
 
-        String letter = "D";
+        String[] letters = {"B", "C", "D"};
 
-        String quiz1 = "Recursion Practice "+letter+"1";
-        String quiz2 = "Recursion Practice "+letter+"2 revisited";
+        for (String letter : letters) {
+            String quiz1 = "Recursion Practice "+letter+"1";
+            String quiz2 = "Recursion Practice "+letter+"2 revisited";
 
-        List<List<String>> comments1 = getQuiz(canvasUrl, token, courseId, quiz1);
-        List<List<String>> comments2 = getQuiz(canvasUrl, token, courseId, quiz2);
-        int userName = 0;
-        int sisUserId = 1;
-        int commentAuthor = 2;
-        int comment = 3;
-        int score = 4;
+            List<List<String>> comments1 = getQuiz(canvasUrl, token, courseId, quiz1);
+            List<List<String>> comments2 = getQuiz(canvasUrl, token, courseId, quiz2);
+            int userName = 0;
+            int sisUserId = 1;
+            int commentAuthor = 2;
+            int comment = 3;
+            int score = 4;
 
-        // Define the file path
+            // Define the file path
 
-        String filePath1 = "Vicki_Comments_"+letter+"1.csv";
-        String filePath2 = "Vicki_Comments_"+letter+"2.csv";
+            String filePath1 = "Vicki_Comments_"+letter+"1.csv";
+            String filePath2 = "Vicki_Comments_"+letter+"2.csv";
+            String delimiter = ",";
+            String lineEnd = "\n";
 
-        try {
-            // Create a FileWriter object
-            FileWriter fileWriter1 = new FileWriter(filePath1);
-            FileWriter fileWriter2 = new FileWriter(filePath2);
-            fileWriter1.write("UserName,sisUserId,submissionScore,submissionComment,submissionCommentAuthor\n");
-            for (List<String> data : comments1) {
-                fileWriter1.write(data.get(userName)+","+data.get(sisUserId)+","+data.get(score)+","+data.get(comment)+","+data.get(commentAuthor)+"\n");
+            try {
+                // Create a FileWriter object
+                FileWriter fileWriter1 = new FileWriter(filePath1);
+                FileWriter fileWriter2 = new FileWriter(filePath2);
+                fileWriter1.write("UserName"+delimiter+"sisUserId"+delimiter+"submissionScore"+delimiter+"submissionComment"+delimiter+"submissionCommentAuthor"+lineEnd);
+                for (List<String> data : comments1) {
+                    fileWriter1.write(cleanString(data.get(userName))+delimiter+cleanString(data.get(sisUserId))+delimiter+cleanString(data.get(score))+delimiter+cleanString(data.get(comment))+delimiter+cleanString(data.get(commentAuthor))+lineEnd);
+                }
+                fileWriter2.write("UserName"+delimiter+"sisUserId"+delimiter+"resubmissionScore"+delimiter+"resubmissionComment"+delimiter+"resubmissionCommentAuthor"+lineEnd);
+                for (List<String> data : comments2) {
+                    fileWriter2.write(cleanString(data.get(userName))+delimiter+cleanString(data.get(sisUserId))+delimiter+cleanString(data.get(score))+delimiter+cleanString(data.get(comment))+delimiter+cleanString(data.get(commentAuthor))+lineEnd);
+                }
+                fileWriter1.close();
+                fileWriter2.close();
+
+                System.out.println("Text has been written to the file successfully.");
+
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            fileWriter2.write("UserName,sisUserId,resubmissionScore,resubmissionComment,resubmissionCommentAuthor\n");
-            for (List<String> data : comments2) {
-                fileWriter1.write(data.get(userName)+","+data.get(sisUserId)+","+data.get(score)+","+data.get(comment)+","+data.get(commentAuthor)+"\n");
-            }
-            fileWriter1.close();
-            fileWriter2.close();
-
-            System.out.println("Text has been written to the file successfully.");
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
 
+
+
+    }
+
+    public static String cleanString(String string) {
+        return string.replace(";", "").replace("\n", "").replace("\r", "").replace("\t", "").replace(",", "").strip();
     }
 
     public static List<List<String>> getQuiz(String canvasUrl, String tokenString, String courseId, String quizTitle) throws IOException {
@@ -93,11 +101,22 @@ public class Nate {
                         if (!comment.getAuthorName().equals("Nate Stott")) {
                             vickiCount++;
                             System.out.println();
+                            System.out.println("************");
+                            System.out.println("User Name: ");
                             System.out.println(userName);
+                            System.out.println("-");
+                            System.out.println("SIS User ID: ");
                             System.out.println(sisUserId);
+                            System.out.println("-");
+                            System.out.println("Author Name: ");
                             System.out.println(comment.getAuthorName());
+                            System.out.println("-");
+                            System.out.println("Comment: ");
                             System.out.println(comment.getComment());
+                            System.out.println("-");
+                            System.out.println("Score: ");
                             System.out.println(score);
+                            System.out.println("-");
                             System.out.println();
                             List<String> data = new ArrayList<>();
                             data.add(userName);
