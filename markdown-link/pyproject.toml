@@ -1,0 +1,24 @@
+[project]
+name = "markdown-link"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Nate Stott",email = "nate.stott@pm.me"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "sentence-transformers (>=5.0.0,<6.0.0)",
+    "torch (>=2.7.1,<3.0.0)",
+    "numpy (>=2.3.1,<3.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "markdown_link", from = "src"}]
+
+[project.scripts]
+markdown-link = "markdown_link.link_semantic:main"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
